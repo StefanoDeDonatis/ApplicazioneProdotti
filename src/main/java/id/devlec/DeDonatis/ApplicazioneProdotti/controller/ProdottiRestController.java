@@ -26,11 +26,11 @@ public class ProdottiRestController {
     public Prodotto trovaProdottoConID(@PathVariable Long id) {
         return repository.findById(id).orElseThrow(() -> new ProdottoNonTrovato(id));
     }
-    /*
+
     @GetMapping("/prodotto/{nome}")
-    public Prodotto trovaProdottoConNome(@PathVariable String nome) {
-        return repository.findBynome(nome).orElseThrow(() -> new ProdottoNonTrovato(nome));
-    }*/
+    public List<Prodotto> trovaProdottoConNome(@PathVariable String nome) {
+        return repository.findBynomeContaining(nome);
+    }
 
     @PostMapping("/prodotto")
     public Prodotto inserisciNuovoProdotto(@RequestBody Prodotto nuovoProdotto) {
@@ -45,19 +45,28 @@ public class ProdottiRestController {
     @DeleteMapping("/prodotto/{id}")
     void eliminaProdotto(@PathVariable Long id){
         repository.deleteById(id);
-    }/*
+    }
+
     @GetMapping("/prodotti/ricercaprezzo")
     public List<Prodotto> ricercaPerPrezzo(@RequestParam(name="min") float min,
                                        @RequestParam(name="max") float max){
         return repository.findByprezzoBetween(min,max);
     }
-    @GetMapping("/utente/ricercadataregistrazione")
+
+    @GetMapping("/prodotti/ricercadataregistrazione")
     public List<Prodotto> ricercaPerDataDiRegistrazione(@RequestParam(name="datada") @DateTimeFormat(pattern= "dd-MM-yyyy")
                                                               Date datada,
                                                       @RequestParam(name="dataa") @DateTimeFormat(pattern= "dd-MM-yyyy")
                                                               Date dataa){
-        return repository.findBydataBetween(datada,dataa);
-    }*/
+        return repository.findBydataacquistoBetween(datada,dataa);
+    }
+
+    @GetMapping("/prodotti/quantitainferiore")
+    public List<Prodotto> ricercaPerQuantitaInferirore(@RequestParam(name="max") float max){
+        return repository.findByquantitaLessThan(max);
+    }
+
+
 
 
 
