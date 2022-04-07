@@ -5,6 +5,7 @@ import id.devlec.DeDonatis.ApplicazioneProdotti.model.Prodotto;
 import id.devlec.DeDonatis.ApplicazioneProdotti.persistence.ProdottiRepository;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -18,7 +19,7 @@ public class ProdottiRestController {
     }
 
     @GetMapping("/prodotti")
-    private List<Prodotto> tuttiProdotti(){
+    private List<Prodotto> tuttiProdotti() {
         return repository.findAll();
     }
 
@@ -27,9 +28,14 @@ public class ProdottiRestController {
         return repository.findById(id).orElseThrow(() -> new ProdottoNonTrovato(id));
     }
 
-    @GetMapping("/prodotto/{nome}")
-    public List<Prodotto> trovaProdottoConNome(@PathVariable String nome) {
-        return repository.findBynomeContaining(nome);
+    @GetMapping("/prodotto/nome")
+    public List<Prodotto> trovaProdottoConNome(@RequestParam String nome) {
+        return repository.findAllBynome(nome);
+    }
+
+    @GetMapping("/prodotto/quantita")
+    public List<Prodotto> trovaProdottoConQuantita(@RequestParam float quantita) {
+        return repository.findAllByquantita(quantita);
     }
 
     @PostMapping("/prodotto")
@@ -43,33 +49,46 @@ public class ProdottiRestController {
     }
 
     @DeleteMapping("/prodotto/{id}")
-    void eliminaProdotto(@PathVariable Long id){
+    void eliminaProdotto(@PathVariable Long id) {
         repository.deleteById(id);
     }
 
     @GetMapping("/prodotti/ricercaprezzo")
-    public List<Prodotto> ricercaPerPrezzo(@RequestParam(name="min") float min,
-                                       @RequestParam(name="max") float max){
-        return repository.findByprezzoBetween(min,max);
+    public List<Prodotto> ricercaPerPrezzo(@RequestParam(name = "min") float min,
+                                           @RequestParam(name = "max") float max) {
+        return repository.findByprezzoBetween(min, max);
     }
 
-    @GetMapping("/prodotti/ricercadataregistrazione")
-    public List<Prodotto> ricercaPerDataDiRegistrazione(@RequestParam(name="datada") @DateTimeFormat(pattern= "dd-MM-yyyy")
-                                                              Date datada,
-                                                      @RequestParam(name="dataa") @DateTimeFormat(pattern= "dd-MM-yyyy")
-                                                              Date dataa){
-        return repository.findBydataacquistoBetween(datada,dataa);
+    @GetMapping("/prodotti/ricercadataacquisto")
+    public List<Prodotto> ricercaPerDataDiAcquisto(@RequestParam(name = "datada") @DateTimeFormat(pattern = "dd-MM-yyyy")
+                                                           Date datada,
+                                                   @RequestParam(name = "dataa") @DateTimeFormat(pattern = "dd-MM-yyyy")
+                                                           Date dataa) {
+        return repository.findBydataacquistoBetween(datada, dataa);
+    }
+
+    @GetMapping("/prodotti/ricercadata")
+    public List<Prodotto> ricercaPerDataDiAcquisto(@RequestParam(name = "data") @DateTimeFormat(pattern = "dd-MM-yyyy") Date data) {
+        return repository.findBydataacquisto(data);
     }
 
     @GetMapping("/prodotti/quantitainferiore")
-    public List<Prodotto> ricercaPerQuantitaInferirore(@RequestParam(name="max") float max){
+    public List<Prodotto> ricercaPerQuantitaInferirore(@RequestParam(name = "max") float max) {
         return repository.findByquantitaLessThan(max);
     }
 
+    @GetMapping("/ordinemento")
+    public List<Prodotto> ricercaOrdinata() {
+        return repository.findByOrderByQuantita();
+    }
 
+    @PostMapping("/caricafile")
+    public String caricaFile(@RequestParam("file") MultipartFile file){
 
+        String infoFile = file.getOriginalFilename()+" "+file.getContentType();
+        String conFormat =String.format("%s-%s",file.getOriginalFilename(),file.getContentType());
 
-
-
+        return conFormat;
+    }
 
 }
